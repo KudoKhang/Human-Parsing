@@ -5,6 +5,6 @@ test.py
 data/
 log/
 pretrained_model/
-eval/
-image_test_GIRL/
-visualize1/
+visualize/
+ibug/
+src/

@@ -9,7 +9,8 @@ Human_parsing_predictor = HumanParsing()
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, default="image_test/g2.jpg", help="Path to input")
+    parser.add_argument("--input", type=str, default="src/image_test/g2.jpg", help="Path to input")
+    parser.add_argument("--tattoo", type=str, default="src/samples/3.png", help="Path to input")
     parser.add_argument("--save", action="store_false")
     parser.add_argument("--plot", action="store_false")
     parser.add_argument("--savedir", type=str, default=".")
@@ -21,8 +22,8 @@ def get_args():
     print()
     return args
 
-def image(path_img, is_save=True, is_plot=True, savedir='.'):
-    img = Human_parsing_predictor.run(path_img)
+def image(path_img, path_tattoo, is_save=True, is_plot=True, savedir='.'):
+    img = Human_parsing_predictor.run(path_img, path_tattoo)
     if is_save:
         path = os.path.join(savedir, 'result.png')
         cv2.imwrite(path, img)

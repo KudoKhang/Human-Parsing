@@ -14,6 +14,11 @@ from utilss.transforms import get_affine_transform
 from utilss.dataset_settings import *
 from utilss.inference_funcs import *
 from modules.human_detection import Detection
+from modules.face import Ibug_Parsing
+
+np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
+
+from modules.tattoo import AddTattoo
 
 class HumanParsing():
     def __init__(self, dataset='atr'):
@@ -25,8 +30,9 @@ class HumanParsing():
         self.path_pretrained = dataset_settings[dataset]['path_pretrained']
 
         self.model = networks.init_model('resnet101', num_classes=self.num_classes, pretrained=None)
-
         self.model_detection = Detection()
+        self.Face_parsing_predictor = Ibug_Parsing()
+        self.addTattoo = AddTattoo()
 
         state_dict = torch.load(self.path_pretrained)['state_dict']
 
@@ -72,6 +78,7 @@ class HumanParsing():
 
     def preprocessing(self, img_path):
         img = self.model_detection.run(self.check_type(img_path))
+        self.face_mask = self.Face_parsing_predictor.run(img)
         self.img_copy = img.copy()
         h, w, _ = img.shape
         # Get person center and scale
@@ -103,7 +110,25 @@ class HumanParsing():
             masks[:, :, i][np.where(masks[:, :, i] == 255)] = color[i]
         return masks
 
-    def run(self, img_path):
+    def remove_noise(self, mask):
+        mask = np.uint8(mask)
+        """
+            IDEA: Find Contour --> Remove all area < max_area
+        """
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        list_areas = np.array(list(map(lambda c: (cv2.contourArea(c), cv2.boundingRect(c)), contours)))
+        index_max_area = np.where(list_areas[:,0] == np.max(list_areas[:,0]))
+        list_areas = list(list_areas)
+        list_areas.pop(int(index_max_area[0]))
+        list_areas = np.array(list_areas)
+
+        for coord in list_areas[:,1]:
+            x, y, w, h = coord
+            points = np.array([(x, y), (x + w, y), (x + w, y + h), (x, y + h)])
+            cv2.fillPoly(mask, pts=[points], color=(0, 0, 0))
+        return mask
+
+    def run(self, img_path, tattoo_path):
         image, meta = self.preprocessing(img_path)
         c = meta['center']
         s = meta['scale']
@@ -123,13 +148,17 @@ class HumanParsing():
         parsing_result[np.where(parsing_result == index)] = 255
         parsing_result[np.where(parsing_result != 255)] = 0
 
-        masks = np.uint8(cv2.merge([parsing_result, parsing_result, parsing_result]))
-        masks = self.make_color(masks)
-        img = cv2.addWeighted(self.img_copy, 0.85, masks, 0.4, 0)
+        parsing_result = self.remove_noise(parsing_result - self.face_mask)
+
+        img = self.addTattoo.run(self.img_copy, parsing_result, tattoo_path=tattoo_path)
+
+        # masks = np.uint8(cv2.merge([parsing_result, parsing_result, parsing_result]))
+        # masks = self.make_color(masks)
+        # img = cv2.addWeighted(self.img_copy, 0.85, masks, 0.4, 0)
         return img
 
 if __name__ == '__main__':
     args = get_args()
-    img = image(args.input, args.save, args.plot, args.savedir)
+    img = image(args.input, args.tattoo ,args.save, args.plot, args.savedir)
     # video('dathao1.mp4')
     # webcam()
