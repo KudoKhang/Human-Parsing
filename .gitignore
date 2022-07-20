@@ -7,4 +7,6 @@ log/
 pretrained_model/
 visualize/
 ibug/
-src/
+*.jpg
+*.png
+*.jpeg
