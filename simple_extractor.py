@@ -34,7 +34,7 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 import networks
-from utils.transforms import transform_logits
+from utilss.transforms import transform_logits
 from datasets.simple_extractor_dataset import SimpleFolderDataset
 
 dataset_settings = {

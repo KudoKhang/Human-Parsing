@@ -24,9 +24,9 @@ import torch.backends.cudnn as cudnn
 
 import networks
 from datasets.datasets import LIPDataValSet
-from utils.miou import compute_mean_ioU
-from utils.transforms import BGR2RGB_transform
-from utils.transforms import transform_parsing
+from utilss.miou import compute_mean_ioU
+from utilss.transforms import BGR2RGB_transform
+from utilss.transforms import transform_parsing
 import time
 import warnings
 warnings.filterwarnings("ignore")

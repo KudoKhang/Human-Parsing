@@ -1,21 +1,19 @@
 import os
 import cv2
 import time
-from tqdm import tqdm
 import torch
 import argparse
 import numpy as np
 from PIL import Image
 from collections import OrderedDict
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 import networks
-from utils.transforms import transform_logits
-from utils.transforms import get_affine_transform
-from datasets.simple_extractor_dataset import SimpleFolderDataset
-from utils.dataset_settings import *
-from utils.inference_funcs import *
+from utilss.transforms import transform_logits
+from utilss.transforms import get_affine_transform
+from utilss.dataset_settings import *
+from utilss.inference_funcs import *
+from modules.human_detection import Detection
 
 class HumanParsing():
     def __init__(self, dataset='atr'):
@@ -27,6 +25,8 @@ class HumanParsing():
         self.path_pretrained = dataset_settings[dataset]['path_pretrained']
 
         self.model = networks.init_model('resnet101', num_classes=self.num_classes, pretrained=None)
+
+        self.model_detection = Detection()
 
         state_dict = torch.load(self.path_pretrained)['state_dict']
 
@@ -71,7 +71,7 @@ class HumanParsing():
         return img
 
     def preprocessing(self, img_path):
-        img = self.check_type(img_path)
+        img = self.model_detection.run(self.check_type(img_path))
         self.img_copy = img.copy()
         h, w, _ = img.shape
         # Get person center and scale
@@ -105,7 +105,6 @@ class HumanParsing():
 
     def run(self, img_path):
         image, meta = self.preprocessing(img_path)
-
         c = meta['center']
         s = meta['scale']
         w = meta['width']
@@ -130,7 +129,7 @@ class HumanParsing():
         return img
 
 if __name__ == '__main__':
-    img = image('image_test/g2.jpg')
+    args = get_args()
+    img = image(args.input, args.save, args.plot, args.savedir)
     # video('dathao1.mp4')
     # webcam()
-    print('oke')

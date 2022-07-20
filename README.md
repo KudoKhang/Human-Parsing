@@ -48,6 +48,8 @@ Or:
 bash train.sh
 ```
 
+[Device without CUDA](https://github.com/GoGoDuck912/Self-Correction-Human-Parsing/pull/50/files#diff-352019e02af2c679214aad4aef6c53091e53e92ea89929d91ce5541fb1bcb552)
+
 ## Evaluation
 ```
 python evaluate.py --model-restore [CHECKPOINT_PATH]

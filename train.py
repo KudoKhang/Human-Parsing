@@ -27,14 +27,14 @@ from torch.utils import data
 import networks
 from datasets.datasets import LIPDataSet
 from datasets.target_generation import generate_edge_tensor
-import utils.schp as schp
-from utils.transforms import BGR2RGB_transform
-from utils.criterion import CriterionAll
-from utils.encoding import DataParallelModel, DataParallelCriterion
-from utils.warmup_scheduler import SGDRScheduler
+import utilss.schp as schp
+from utilss.transforms import BGR2RGB_transform
+from utilss.criterion import CriterionAll
+from utilss.encoding import DataParallelModel, DataParallelCriterion
+from utilss.warmup_scheduler import SGDRScheduler
 
-from utils.eval import Eval
-from utils.predict import HumanParsing
+from utilss.eval import Eval
+from utilss.predict import HumanParsing
 import csv
 import warnings
 

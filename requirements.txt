@@ -3,3 +3,5 @@ opencv-python
 albumentations==1.1.0
 wandb
 ninja
+torch==1.12.0
+torchvision==0.13.0
